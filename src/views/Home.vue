@@ -9,6 +9,8 @@
 
 <script>
 // https://stackoverflow.com/questions/11041547/finding-the-distance-of-a-point-to-an-ellipse-wether-its-inside-or-outside-of-e
+
+// https://math.stackexchange.com/questions/3670465/calculate-distance-from-point-to-ellipse-edge
 // @ is an alias to /src
 import makeMediaStreamCompatible from '../helpers/CompatibleMediaStream'
 import * as faceapi from 'face-api.js'
