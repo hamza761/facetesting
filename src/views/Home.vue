@@ -8,6 +8,7 @@
 </template>
 
 <script>
+// https://stackoverflow.com/questions/11041547/finding-the-distance-of-a-point-to-an-ellipse-wether-its-inside-or-outside-of-e
 // @ is an alias to /src
 import makeMediaStreamCompatible from '../helpers/CompatibleMediaStream'
 import * as faceapi from 'face-api.js'
@@ -20,17 +21,31 @@ export default {
     }
   },
   methods: {
+    ellipseDistanceFromPoint(x, y, cx, cy, theta, alpha, beta) {
+      const cosTheta = Math.cos(theta)
+      const sinTheta = Math.sin(theta)
+      const u = cosTheta*(x-cx) + sinTheta*(y-cy)
+      const v = -sinTheta*(x-cx) + cosTheta*(y-cy)
+      return Math.sqrt(((u/alpha)**2 + (v/beta)**2))
+    },
     startWorking () {
     this.loading = true
     const canvas = document.getElementById('canvas')
     const v1 = document.getElementById('video')
     const ctx = canvas.getContext('2d')
+    // ctx.beginPath();
+    ctx.ellipse(canvas.width/2, canvas.height/2, 90, 130, Math.PI , 0 , 2 * Math.PI);
+    ctx.fill();
+    ctx.stroke()
+    ctx.globalCompositeOperation = 'source-out';
     ctx.fillStyle = "blue";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.beginPath();
-    ctx.ellipse(canvas.width/2, canvas.height/2, 90, 130, Math.PI , Math.PI/2 , 2 * Math.PI+Math.PI/2);
-    ctx.fill();
+    // ctx.scale(5,5)
+    // ctx.closePath()
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.moveTo(0, 10)
+    ctx.lineTo(100, 10)
+    ctx.stroke()
     makeMediaStreamCompatible()
     navigator.mediaDevices.getUserMedia( { audio: false, video: { width: 720, height: 480 } }).then(stream => {
         if ("srcObject" in v1) {
@@ -42,7 +57,7 @@ export default {
     }).catch(error => {
         console.log(error)
     })
-    v1.onloadedmetadata = async function(e) {
+    v1.onloadedmetadata = async (e) => {
     // await faceapi.nets.ssdMobilenetv1.loadFromUri('/models')
     await faceapi.nets.tinyFaceDetector.loadFromUri('/models')
     await faceapi.nets.faceLandmark68Net.loadFromUri('/models')
@@ -59,7 +74,9 @@ export default {
           for (let index = 0; index < jawPoints.length; index++) {
             const element = jawPoints[index]
             // console.log(jawPoints[index].x*widthToBeMultiplyBy, jawPoints[index].y*heightToBeMultiplyBy)
-            if(!ctx.isPointInPath(jawPoints[index].x*widthToBeMultiplyBy, jawPoints[index].y*heightToBeMultiplyBy)){
+            const rslt = this.ellipseDistanceFromPoint(jawPoints[index].x*widthToBeMultiplyBy, jawPoints[index].y*heightToBeMultiplyBy, canvas.width/2, canvas.height/2, Math.PI, 130, 90)
+            console.log(rslt)
+            if(rslt > 1){
               allPointsSatisfied = false
               break
             }
