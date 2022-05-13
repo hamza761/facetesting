@@ -1,8 +1,8 @@
 <template>
 <div class="main">
     <div id="canvas-and-video-holding-div">
-        <canvas class="canvas" width="500px" height="350px" id="canvas"></canvas>
-        <video height="350px" width="500px" id="video"></video>
+        <canvas class="canvas" width="250px" height="350px" id="canvas"></canvas>
+        <video height="350px" width="250px" id="video"></video>
     </div>
 </div>
 </template>
@@ -76,8 +76,8 @@ export default {
           for (let index = 0; index < jawPoints.length; index++) {
             const element = jawPoints[index]
             // console.log(jawPoints[index].x*widthToBeMultiplyBy, jawPoints[index].y*heightToBeMultiplyBy)
-            const rslt = this.ellipseDistanceFromPoint(jawPoints[index].x*widthToBeMultiplyBy, jawPoints[index].y*heightToBeMultiplyBy, canvas.width/2, canvas.height/2, Math.PI, 130, 90)
-            console.log(rslt)
+            const rslt = this.ellipseDistanceFromPoint(jawPoints[index].x*widthToBeMultiplyBy, jawPoints[index].y*heightToBeMultiplyBy, canvas.width/2, canvas.height/2, Math.PI, 90, 130)
+            console.log(rslt, index, 'index')
             if(rslt > 1){
               allPointsSatisfied = false
               break
@@ -102,9 +102,15 @@ export default {
         #canvas-and-video-holding-div {
             position: relative;
         }
+        #canvas-and-video-holding-div video {
+          object-fit: cover;
+          transform: rotateY(180deg);
+        }
         .canvas {
             /* background-color:white; */
             position: absolute;
+                      transform: rotateY(180deg);
+
         }
         .main {
             display: flex;
