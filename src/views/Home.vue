@@ -1,5 +1,5 @@
 <template>
-  <div class="main">
+  <div class="main">{{message}}
     <div id="canvas-and-video-holding-div">
       <canvas class="canvas" width="500px" height="350px" id="canvas"></canvas>
       <video height="350px" width="500px" id="video"></video>
@@ -13,14 +13,15 @@
 // @ is an alias to /src
 import makeMediaStreamCompatible from "../helpers/CompatibleMediaStream";
 import * as faceapi from "face-api.js";
-import { Point } from 'face-api.js';
 let clearInterval = null;
 export default {
   name: "Home",
   data() {
     return {
       loading: false,
-    };
+      message: 'some message',
+      orientation: 'landscape-primary'
+    }
   },
   methods: {
     ellipseDistanceFromPoint(x, y, cx, cy, theta, alpha, beta) {
@@ -71,6 +72,12 @@ export default {
       const canvas = document.getElementById("canvas");
       const v1 = document.getElementById("video");
       const ctx = canvas.getContext("2d");
+      if (screen.orientation.type === 'landscape-primary') {
+
+      } else {
+        v1.width = canvas.width = 350
+        v1.height = canvas.height = 500
+      }
       // ctx.beginPath();
       ctx.ellipse(
         canvas.width / 2,
@@ -166,23 +173,21 @@ export default {
                   90,
                   130
                 );
-                console.log(rslt, index, "index");
                 if (rslt > 1 || rslt < 0.80) {
                   allPointsSatisfied = false;
                   break;
                 }
               }
-              console.log(allPointsSatisfied);
               if (allPointsSatisfied) break;
               else {
-                console.log('in else part')
+                this.message = "position your face in the center"
                 const minSingleFace = result[minDistance.index]
                 console.log(minSingleFace.landmarks.getJawOutline())
-                const summ = this.calculateFaceMatricsFromJawPoints(minSingleFace.landmarks.getJawOutline())
-                console.log(summ)
+                // const summ = this.calculateFaceMatricsFromJawPoints(minSingleFace.landmarks.getJawOutline())
+                // console.log(summ)
               }
             }
-          } else console.log("frame your face");
+          } else this.message = "frame your face"
         }, 1000);
         // if (d && jawPoints && jawPoints[5] && jawPoints[6] && jawPoints[12] && jawPoints[13]) {
         //     const box = d.detection.box
@@ -202,6 +207,7 @@ export default {
 }
 #canvas-and-video-holding-div video {
   object-fit: cover;
+  aspect-ratio: 16/9;
   transform: rotateY(180deg);
 }
 .canvas {
