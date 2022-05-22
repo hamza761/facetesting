@@ -22,6 +22,55 @@ export default {
         delChunks() {
             chunks = []
         },
+    drawEllipsea(ellipseRadiusX, ellipseRadiusY, shouldClearCanvas, borderColor) {
+        const canvas = this.$refs.canvas;
+      if (shouldClearCanvas)
+        canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+      canvasContext.beginPath();
+      canvasContext.fillStyle = "rgba(0, 0, 0, 0.42)";
+      canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+      canvasContext.globalCompositeOperation = "destination-out";
+      canvasContext.ellipse(
+        canvas.width / 2,
+        canvas.height / 2,
+        ellipseRadiusX,
+        ellipseRadiusY,
+        Math.PI,
+        0,
+        2 * Math.PI
+      );
+      canvasContext.fill();
+      canvasContext.globalCompositeOperation = "source-over";
+      canvasContext.strokeStyle = borderColor;
+      canvasContext.stroke();
+},
+    // used to draw ellipse on canvas
+
+    drawCanvasaContent(rX, rY, shouldClearCanvas, borderColor, shouldAnimate) {
+        if (shouldAnimate) {
+            const drawEllipseWithAnimation = (intervalX, intervalY ,stopAnimationFrameId, checkGreater) => {
+                let stopId = stopAnimationFrameId
+                const ellipseAnimation = () => {
+                    radiusX += intervalX
+                    radiusY += intervalY
+                    const conditionTobeCompared = checkGreater ? radiusX >= rX : radiusX <= rX
+                    this.drawEllipse(radiusX, radiusY, shouldClearCanvas, borderColor)
+                    if (conditionTobeCompared) {
+                        console.log('cancelled')
+                        cancelAnimationFrame(stopId)
+                        return  
+                    }
+                    stopId = requestAnimationFrame(ellipseAnimation)
+                }
+                return ellipseAnimation
+            }
+            const intervalX = (rX - radiusX)/30
+            const intervalY = (rY - radiusY)/30
+            const AnimationFrameId = requestAnimationFrame(drawEllipseWithAnimation(intervalX, intervalY, AnimationFrameId, intervalX > 0))
+        } else {
+            this.drawEllipse(rX, rY, shouldClearCanvas, borderColor)
+        }
+    },
         findResolutionFromStream (stream) {
             return new Promise ((resolve, reject) => {
                 if (stream.getVideoTracks) return resolve({data:stream.getVideoTracks()[0].getSettings(), supported: true})
